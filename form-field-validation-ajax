@@ -1,0 +1,37 @@
+function apply_form_field_error(fieldname, error) {
+
+        $.each(error,function (key,value) {
+           var input=$('#id_'+key);
+           input.after("<small class=\"form-text mb-1 text-danger\">"+value[0]+"</small>");
+        });
+
+    }
+
+    $(document).ready(function () {
+        $('#demo').submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "post",
+                url: "{% url 'hello' %}",
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    console.log(response.errors)
+                },
+                error: function (response) {
+                    var errors = $.parseJSON(response.responseText);
+                    $.each(errors, function (index, value) {
+
+                        if (index === "__all__") {
+                            console.log(value[0], "error");
+                        }
+                        else {
+                            apply_form_field_error(index, value);
+                        }
+
+                    });
+                }
+            });
+        });
+
+    });
